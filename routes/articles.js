@@ -67,12 +67,24 @@ router.get('/article/:id', function(req, res, next) {
     );
 });
 
-router.post('/articles', (req, res, next) => {
-    let articleIdList = req.body.idList.split(',');
-    getArticlesById(articleIdList,
-        articles => res.send(JSON.stringify(articles)),
-        error => next(error)
-    );
+router.post('/create-article', (req, res, next) => {
+    let article = req.body;
+    if (!article) {
+        return;
+    }
+    let sqlInsertArticle = `
+        INSERT INTO  article(
+            author_id,
+            title, 
+            content)
+        VALUES
+            (?,?,?)
+        ; `;
+    pool.query(sqlInsertArticle, [article.authorId, article.title, article.content], function(error, results, fields) {
+        if (error) {
+            next(error);
+        }
+        res.status(200).send(results.insertId); // 返回主键id
+    });
 });
-
 module.exports = router;
