@@ -2,6 +2,14 @@ var express = require('express');
 var router = express.Router();
 var pool = require('../core/mysql-pool');
 
+
+/**
+ * 根据文章id列表获取对应的文章列表
+ * 
+ * @param {any} articleIdList 
+ * @param {any} successCb 
+ * @param {any} errorCb 
+ */
 function getArticlesById(articleIdList, successCb, errorCb) {
     let sqlGetArticle = `
       SELECT 
@@ -16,7 +24,7 @@ function getArticlesById(articleIdList, successCb, errorCb) {
         article
       WHERE 
         id in (?)
-        ; `;
+        ; `; // 根据id获取article表中的数据
     let sqlGetCommentIdList = `
         SELECT
           comment_id as commentId
@@ -24,7 +32,7 @@ function getArticlesById(articleIdList, successCb, errorCb) {
           article_comment_rel
         WHERE 
           article_id=?
-        `;
+        `; // 根据文章id获取评论列表数据
     // 先查不带评论的文章数组
     pool.query(sqlGetArticle, [articleIdList], function(error, results, fields) {
         if (error) {
@@ -59,6 +67,9 @@ router.get('/', function(req, res, next) {
     res.render('index', { title: 'atticle home page' });
 });
 
+/**
+ * 根据id获取单条文章
+ */
 router.get('/article/:id', function(req, res, next) {
     let articleId = req.params.id;
     getArticlesById([articleId],
@@ -66,7 +77,19 @@ router.get('/article/:id', function(req, res, next) {
         error => next(error)
     );
 });
-
+/**
+ * 根据id列表获取对应的文章列表。 id列表由逗号分隔，如"1,2,3"
+ */
+router.post('/articles', (req, res, next) => {
+    let articleIdList = req.body.idList.split(',');
+    getArticlesById(articleIdList,
+        articles => res.send(JSON.stringify(articles)),
+        error => next(error)
+    );
+});
+/**
+ * 创建新文章，返回新建的文章id
+ */
 router.post('/create-article', (req, res, next) => {
     let article = req.body;
     if (!article) {

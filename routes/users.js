@@ -8,6 +8,9 @@ router.get('/', function(req, res, next) {
     res.send('respond with a resource');
 });
 
+/**
+ * 获取所有的作者列表
+ */
 router.get('/author-list', (req, res, next) => {
     let sqlGetAuthorList = `
       SELECT 
@@ -53,7 +56,9 @@ router.get('/author-list', (req, res, next) => {
     })
 });
 
-
+/**
+ * 根据id获取作者
+ */
 router.get('/author/:id', (req, res, next) => {
     let authorId = req.params.id;
 
