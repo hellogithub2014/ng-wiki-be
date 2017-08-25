@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var pool = require('../core/mysql-pool');
 
+var articlesService = require('../services/articles.service');
 
 /**
  * 根据文章id列表获取对应的文章列表
@@ -110,4 +111,51 @@ router.post('/create-article', (req, res, next) => {
         res.status(200).send(results.insertId); // 返回主键id
     });
 });
+
+/**
+ * 为文章阅读量加1
+ */
+router.post('/add-article-visit-count', (req, res, next) => {
+    let articleId = req.body.articleId;
+    articlesService.addArticleVisitCount(articleId, (error, result) => {
+        if (error) {
+            next(error);
+        }
+        res.send(JSON.stringify(true)); // 操作成功返回true
+    })
+});
+
+
+/**
+ * 切换文章点赞，若之前点过赞，则取消点赞
+ * 
+ * TODO: 添加文章和点赞用户id的关系表，若数据库中存在记录，则表示此用户点过赞，此时从数据库中删除记录
+ * 若不存在记录，则插入一条记录。
+ * 
+ * 添加单独get-article-likes-flag路由，查询是否点过赞
+ */
+router.post('/toggle-article-likes-flag', (req, res, next) => {
+    let articleId = req.body.articleId;
+    articlesService.addArticleLikesCount(articleId, (error, result) => {
+        if (error) {
+            next(error);
+        }
+        res.send(JSON.stringify(true)); // 操作成功返回true
+    })
+});
+
+
+/**
+ * 为文章分享量加1
+ */
+router.post('/add-article-shared-count', (req, res, next) => {
+    let articleId = req.body.articleId;
+    articlesService.addArticleSharedCount(articleId, (error, result) => {
+        if (error) {
+            next(error);
+        }
+        res.send(JSON.stringify(true)); // 操作成功返回true
+    })
+});
+
 module.exports = router;
