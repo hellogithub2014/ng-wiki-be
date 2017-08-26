@@ -21,6 +21,15 @@ function addArticleLikesCount(articleId, cb) {
 }
 
 
+function decrementArticleLikesCount(articleId, cb) {
+    pool.query(articlesSQL.decrementLikesCount, [articleId], (err, results) => {
+        if (err) {
+            cb(err);
+        }
+        cb(undefined, results);
+    });
+}
+
 function addArticleSharedCount(articleId, cb) {
     pool.query(articlesSQL.addArticleSharedCount, [articleId], (err, results) => {
         if (err) {
@@ -30,7 +39,38 @@ function addArticleSharedCount(articleId, cb) {
     });
 }
 
+function getLikesFlag(articleId, likerId, cb) {
+    pool.query(articlesSQL.getLikesFlag, [articleId, likerId], (err, results) => {
+        if (err) {
+            cb(err);
+        }
+        cb(undefined, results[0]["count"] ? true : false);
+    });
+}
+
+function insertArticleLiker(articleId, likerId, cb) {
+    pool.query(articlesSQL.insertArticleLiker, [articleId, likerId], (err, results) => {
+        if (err) {
+            cb(err);
+        }
+        cb(undefined, results);
+    });
+}
+
+
+function deleteArticleLiker(articleId, likerId, cb) {
+    pool.query(articlesSQL.deleteArticleLiker, [articleId, likerId], (err, results) => {
+        if (err) {
+            cb(err);
+        }
+        cb(undefined, results);
+    });
+}
 
 exports.addArticleVisitCount = addArticleVisitCount;
 exports.addArticleLikesCount = addArticleLikesCount;
+exports.decrementArticleLikesCount = decrementArticleLikesCount;
 exports.addArticleSharedCount = addArticleSharedCount;
+exports.getLikesFlag = getLikesFlag;
+exports.insertArticleLiker = insertArticleLiker;
+exports.deleteArticleLiker = deleteArticleLiker;

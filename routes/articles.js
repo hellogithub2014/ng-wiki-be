@@ -129,21 +129,60 @@ router.post('/add-article-visit-count', (req, res, next) => {
 /**
  * 切换文章点赞，若之前点过赞，则取消点赞
  * 
- * TODO: 添加文章和点赞用户id的关系表，若数据库中存在记录，则表示此用户点过赞，此时从数据库中删除记录
+ * 查询文章和点赞用户id的关系表，若数据库中存在记录，则表示此用户点过赞，此时从数据库中删除记录
  * 若不存在记录，则插入一条记录。
  * 
- * 添加单独get-article-likes-flag路由，查询是否点过赞
  */
 router.post('/toggle-article-likes-flag', (req, res, next) => {
-    let articleId = req.body.articleId;
-    articlesService.addArticleLikesCount(articleId, (error, result) => {
+    let { articleId, likerId } = req.body;
+    // 先查询是否点过赞
+    articlesService.getLikesFlag(articleId, likerId, (error, result) => {
         if (error) {
             next(error);
         }
-        res.send(JSON.stringify(true)); // 操作成功返回true
-    })
+        // 点过赞则result=true，没点过result=false
+        if (result) {
+            // 删除点赞记录
+            articlesService.deleteArticleLiker(articleId, likerId, (err, result) => {
+                if (err) { next(err) }
+                // 并将文章点赞数减1
+                articlesService.decrementArticleLikesCount(articleId, (error, result) => {
+                    if (error) {
+                        next(error);
+                    }
+                    res.send(JSON.stringify(true)); // 操作成功返回true
+                })
+            });
+        } else {
+            // 插入一条点赞记录
+            articlesService.insertArticleLiker(articleId, likerId, (err, result) => {
+                if (err) { next(err) }
+                // 并将文章点赞数加1
+                articlesService.addArticleLikesCount(articleId, (error, result) => {
+                    if (error) {
+                        next(error);
+                    }
+                    res.send(JSON.stringify(true)); // 操作成功返回true
+                })
+            });
+        }
+    });
+
+
 });
 
+/**
+ * 查询某人是否给谋篇文章点过赞
+ */
+router.post('/get-article-likes-flag', (req, res, next) => {
+    let { articleId, likerId } = req.body;
+    articlesService.getLikesFlag(articleId, likerId, (error, result) => {
+        if (error) {
+            next(error);
+        }
+        res.send(JSON.stringify(result)); // 点过赞则返回true，没点过返回false
+    });
+});
 
 /**
  * 为文章分享量加1
