@@ -1,5 +1,6 @@
 var express = require('express');
 var pool = require('../core/mysql-pool');
+var usersService = require('../services/users.service');
 
 var router = express.Router();
 
@@ -104,5 +105,30 @@ router.get('/author/:id', (req, res, next) => {
     });
 });
 
+/**
+ * 注册新用户
+ */
+router.post('/add-author', (req, res, next) => {
+    const userInfo = req.body;
+    usersService.insertAuthor(userInfo, (err, userId) => {
+        if (err) {
+            next(err);
+        }
+        res.send(JSON.stringify(userId));
+    });
+});
+
+/**
+ * 登录
+ */
+router.post('/login', (req, res, next) => {
+    const userInfo = req.body;
+    usersService.validateLogin(userInfo, (error, result) => {
+        if (error) {
+            next(error);
+        }
+        res.send(JSON.stringify(result));
+    })
+});
 
 module.exports = router;

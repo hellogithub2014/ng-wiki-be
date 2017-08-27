@@ -39,6 +39,28 @@ const deleteArticleLiker = `
     WHERE article_id=? AND liker_id=?
 `;
 
+const insertArticle = `
+        INSERT INTO  article(
+            author_id,
+            title, 
+            content)
+        VALUES
+            (?,?,?)
+        ; `;
+
+const insertAuthorArticleRel = `
+    INSERT INTO author_article_rel (author_id,article_id)
+    VALUES (?,?)
+`;
+
+const getArticleIdListByUser = `
+    SELECT 
+            article_id as articleId
+    FROM author_article_rel
+    WHERE author_id=?
+`;
+
+
 exports.addArticleVisitCount = updateVisitCount;
 exports.addArticleLikesCount = addLikesCount;
 exports.decrementLikesCount = decrementLikesCount;
@@ -46,3 +68,6 @@ exports.addArticleSharedCount = updateSharedCount;
 exports.getLikesFlag = getLikesFlag;
 exports.insertArticleLiker = insertArticleLiker;
 exports.deleteArticleLiker = deleteArticleLiker;
+exports.insertArticle = insertArticle;
+exports.insertAuthorArticleRel = insertAuthorArticleRel;
+exports.getArticleIdListByUser = getArticleIdListByUser;
