@@ -230,7 +230,7 @@ function addReply(comment, connection, resolve, reject) {
         VALUES
             (?,?)
         ; `;
-    connection.query(sqlInsertCommentReplyRel, [comment.to, comment.id], function(error, results, fields) {
+    connection.query(sqlInsertCommentReplyRel, [comment.belong, comment.id], function(error, results, fields) {
         if (error) {
             reject(error);
         }
@@ -242,7 +242,9 @@ function addReply(comment, connection, resolve, reject) {
  * 添加评论的回复
  */
 router.post('/add-comment-reply', (req, res, next) => {
-    let comment = req.body;
+    // body的数据格式{ comment, belong：number } belong表示此回复是属于哪个一级评论下的
+    let { comment, belong } = req.body;
+    comment['belong'] = belong;
     addArticleComment(comment, addReply, (result) => res.send(JSON.stringify(result)));
 });
 
